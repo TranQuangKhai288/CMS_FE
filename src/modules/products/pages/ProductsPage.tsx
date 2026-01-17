@@ -25,6 +25,7 @@ import { productsApi } from "../api";
 import ProductDialog from "../components/ProductDialog";
 import DeleteProductDialog from "../components/DeleteProductDialog";
 import type { Product } from "../types";
+import ExpandableDescription from "../components/ExpandableDescription";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -43,7 +44,7 @@ export default function ProductsPage() {
     queryKey: ["products", page, searchText, limit],
     queryFn: () => productsApi.getProducts({ page, limit, search: searchText }),
   });
-
+  console.log(data, "data");
   const toggleStatusMutation = useMutation({
     mutationFn: (id: string) => productsApi.toggleProductStatus(id),
     onSuccess: () => {
@@ -86,7 +87,7 @@ export default function ProductsPage() {
       width: 80,
       render: (_: any, record: Product) => {
         const img =
-          record.images?.find((i) => i.is_primary) || record.images?.[0];
+          record.images?.find((i) => i.isPrimary) || record.images?.[0];
         return <Avatar src={img?.url} shape="square" size={64} />;
       },
     },
@@ -94,26 +95,27 @@ export default function ProductsPage() {
       title: "Sản phẩm",
       dataIndex: "name",
       key: "name",
-      render: (_: any, record: Product) => (
-        <div className="=">
-          <div className="font-medium">SKU: {record.sku}</div>
+      width: 350, // Nên set width cố định để cột không bị co giãn quá mức
+      render: (_: any, record: Product) => {
+        // Ưu tiên shortDesc, nếu không có thì lấy description
+        const content = record.shortDesc || record.description;
 
-          <div className="font-medium">Tên sản phẩm: {record.name}</div>
-          {record.short_desc ? (
-            <Tooltip title={record.short_desc}>
-              <div className="text-sm text-gray-600 truncate max-w-[320px]">
-                {record.short_desc}
-              </div>
-            </Tooltip>
-          ) : record.description ? (
-            <Tooltip title={record.description}>
-              <div className="text-sm text-gray-600 truncate max-w-[320px]">
-                {record.description}
-              </div>
-            </Tooltip>
-          ) : null}
-        </div>
-      ),
+        return (
+          <div className="flex flex-col gap-1">
+            <div className="font-medium text-gray-900">
+              <span className="text-gray-500 font-normal text-xs mr-1">
+                SKU:
+              </span>
+              {record.sku}
+            </div>
+
+            <div className="font-medium text-base">{record.name}</div>
+
+            {/* Gọi Component xử lý đóng mở tại đây */}
+            <ExpandableDescription content={content} />
+          </div>
+        );
+      },
     },
     {
       title: "Thuộc tính",
@@ -139,33 +141,31 @@ export default function ProductsPage() {
           );
         } catch (e) {
           return (
-            <div className="text-sm truncate max-w-[220px]">
-              {String(attrs)}
-            </div>
+            <div className="text-sm truncate max-w-55">{String(attrs)}</div>
           );
         }
       },
     },
     {
       title: "Giá cơ bản",
-      dataIndex: "base_price",
-      key: "base_price",
+      dataIndex: "basePrice",
+      key: "basePrice",
       align: "right",
       render: (v: number) => (v ?? 0).toLocaleString(),
       width: 120,
     },
     {
       title: "Giá bán",
-      dataIndex: "sale_price",
-      key: "sale_price",
+      dataIndex: "salePrice",
+      key: "salePrice",
       align: "right",
       render: (v: number) => (v ?? 0).toLocaleString(),
       width: 120,
     },
     {
       title: "Giá vốn",
-      dataIndex: "cost_price",
-      key: "cost_price",
+      dataIndex: "costPrice",
+      key: "costPrice",
       align: "right",
       render: (v: number) => (v ?? 0).toLocaleString(),
       width: 120,
@@ -195,10 +195,10 @@ export default function ProductsPage() {
           status === "PUBLISHED"
             ? "green"
             : status === "ARCHIVED"
-            ? "default"
-            : status === "OUT_OF_STOCK"
-            ? "orange"
-            : "blue";
+              ? "default"
+              : status === "OUT_OF_STOCK"
+                ? "orange"
+                : "blue";
         return <Tag color={color}>{status}</Tag>;
       },
     },
@@ -227,7 +227,7 @@ export default function ProductsPage() {
           </Tooltip>
           <Tooltip title="Kích hoạt">
             <Switch
-              checked={!!record.is_active}
+              checked={!!record.isActive}
               onChange={() => toggleStatusMutation.mutate(record.id)}
             />
           </Tooltip>

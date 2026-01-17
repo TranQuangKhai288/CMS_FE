@@ -2,25 +2,26 @@ import type { ApiResponse } from "@/lib/types";
 
 export interface ProductVariant {
   id: string;
-  product_id: string;
+  productId: string;
   sku?: string;
   name?: string;
   attributes?: any;
   price?: number;
   stock?: number;
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductImage {
   id: string;
-  product_id: string;
+  productId: string;
   url: string;
   alt?: string;
   order?: number;
-  is_primary?: boolean;
-  created_at?: string;
+  isPrimary?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Product {
@@ -29,23 +30,23 @@ export interface Product {
   slug?: string;
   sku?: string;
   description?: string;
-  short_desc?: string;
-  category_id?: string;
+  shortDesc?: string;
+  categoryId?: string;
   attributes?: any; // jsonb
-  base_price?: number;
-  sale_price?: number;
-  cost_price?: number;
+  basePrice?: number;
+  salePrice?: number;
+  costPrice?: number;
   stock?: number;
-  low_stock?: number;
+  lowStock?: number;
   status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" | "OUT_OF_STOCK";
-  is_active?: boolean;
-  is_featured?: boolean;
-  meta_title?: string;
-  meta_desc?: string;
-  meta_keywords?: string;
-  created_at?: string;
-  updated_at?: string;
-  published_at?: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
+  metaTitle?: string;
+  metaDesc?: string;
+  metaKeywords?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  publishedAt?: string;
   variants?: ProductVariant[];
   images?: ProductImage[];
 }
@@ -55,16 +56,16 @@ export interface CreateProductDto {
   slug?: string;
   sku?: string;
   description?: string;
-  short_desc?: string;
-  category_id?: string;
+  shortDesc?: string;
+  categoryId?: string;
   attributes?: any;
-  base_price?: number;
-  sale_price?: number;
-  cost_price?: number;
+  basePrice?: number;
+  salePrice?: number;
+  costPrice?: number;
   stock?: number;
-  low_stock?: number;
-  is_active?: boolean;
-  is_featured?: boolean;
+  lowStock?: number;
+  isActive?: boolean;
+  isFeatured?: boolean;
 }
 
 export interface UpdateProductDto {
@@ -72,16 +73,16 @@ export interface UpdateProductDto {
   slug?: string;
   sku?: string;
   description?: string;
-  short_desc?: string;
-  category_id?: string;
+  shortDesc?: string;
+  categoryId?: string;
   attributes?: any;
-  base_price?: number;
-  sale_price?: number;
-  cost_price?: number;
+  basePrice?: number;
+  salePrice?: number;
+  costPrice?: number;
   stock?: number;
-  low_stock?: number;
-  is_active?: boolean;
-  is_featured?: boolean;
+  lowStock?: number;
+  isActive?: boolean;
+  isFeatured?: boolean;
 }
 
 export type ProductListResponse = ApiResponse<Product[]>;

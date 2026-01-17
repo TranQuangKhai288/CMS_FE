@@ -44,7 +44,7 @@ export const productsApi = {
   updateProduct: async (id: string, data: UpdateProductDto) => {
     const response = await api.put<ProductResponse>(
       `/shop/products/${id}`,
-      data
+      data,
     );
     return response.data;
   },
@@ -52,7 +52,7 @@ export const productsApi = {
   // Xóa product
   deleteProduct: async (id: string) => {
     const response = await api.delete<ApiResponse<void>>(
-      `/shop/products/${id}`
+      `/shop/products/${id}`,
     );
     return response.data;
   },
@@ -60,7 +60,49 @@ export const productsApi = {
   // Toggle trạng thái active
   toggleProductStatus: async (id: string) => {
     const response = await api.patch<ProductResponse>(
-      `/shop/products/${id}/toggle-status`
+      `/shop/products/${id}/toggle-status`,
+    );
+    return response.data;
+  },
+};
+
+export const categoriesApi = {
+  // Lấy danh sách categories
+  getCategories: async () => {
+    const response = await api.get<ApiResponse<any[]>>("/shop/categories");
+    return response.data;
+  },
+  getCategoriesTree: async () => {
+    const response = await api.get<ApiResponse<any[]>>("/shop/categories/tree");
+    return response.data;
+  },
+
+  getCategoriesById: async (id: string) => {
+    const response = await api.get<ApiResponse<any>>(`/shop/categories/${id}`);
+    return response.data;
+  },
+
+  getCategoriesBySlug: async (slug: string) => {
+    const response = await api.get<ApiResponse<any>>(
+      `/shop/categories/slug/${slug}`,
+    );
+    return response.data;
+  },
+
+  createCategory: async (data: any) => {
+    const response = await api.post<ApiResponse<any>>("/shop/categories", data);
+    return response.data;
+  },
+  updateCategory: async (id: string, data: any) => {
+    const response = await api.put<ApiResponse<any>>(
+      `/shop/categories/${id}`,
+      data,
+    );
+    return response.data;
+  },
+  deleteCategory: async (id: string) => {
+    const response = await api.delete<ApiResponse<void>>(
+      `/shop/categories/${id}`,
     );
     return response.data;
   },

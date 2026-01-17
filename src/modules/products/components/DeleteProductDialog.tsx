@@ -42,7 +42,7 @@ export default function DeleteUserDialog({
       title={
         <span className="flex items-center gap-2 text-red-600">
           <ExclamationCircleOutlined />
-          Xác nhận xóa User
+          Xác nhận xóa Product
         </span>
       }
       open={isOpen}

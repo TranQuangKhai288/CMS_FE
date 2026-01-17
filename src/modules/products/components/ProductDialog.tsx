@@ -1,11 +1,10 @@
 import { useEffect } from "react";
-import { Modal, Form, Input, Select, message } from "antd";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Modal, Form, Input, Select, message, Switch, InputNumber } from "antd";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi } from "../api";
-import { rolesApi } from "@/modules/roles/api";
 import type { Product } from "../types";
 
-interface UserDialogProps {
+interface ProductDialogProps {
   isOpen: boolean;
   onClose: () => void;
   product?: Product | null;
@@ -13,16 +12,25 @@ interface UserDialogProps {
 
 interface ProductFormData {
   name: string;
+  slug?: string;
+  sku?: string;
+  short_desc?: string;
   description?: string;
-  price: number;
-  roleId?: string;
+  category_id?: string;
+  attributes?: string; // JSON string in form
+  base_price?: number;
+  sale_price?: number;
+  cost_price?: number;
+  stock?: number;
+  status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" | "OUT_OF_STOCK";
+  is_active?: boolean;
 }
 
-export default function UserDialog({
+export default function ProductDialog({
   isOpen,
   onClose,
   product,
-}: UserDialogProps) {
+}: ProductDialogProps) {
   const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const isEdit = !!product;
@@ -38,8 +46,20 @@ export default function UserDialog({
     if (isOpen && product) {
       form.setFieldsValue({
         name: product.name,
+        slug: product.slug || "",
+        sku: product.sku || "",
+        short_desc: product.short_desc || "",
         description: product.description || "",
-        price: product.price || 0,
+        category_id: product.category_id || undefined,
+        attributes: product.attributes
+          ? JSON.stringify(product.attributes)
+          : "",
+        base_price: product.base_price ?? 0,
+        sale_price: product.sale_price ?? 0,
+        cost_price: product.cost_price ?? 0,
+        stock: product.stock ?? 0,
+        status: product.status || "DRAFT",
+        is_active: !!product.is_active,
       });
     } else if (isOpen) {
       form.resetFields();
@@ -88,7 +108,7 @@ export default function UserDialog({
 
   return (
     <Modal
-      title={isEdit ? "Chỉnh sửa User" : "Thêm User mới"}
+      title={isEdit ? "Chỉnh sửa Product" : "Thêm Product mới"}
       open={isOpen}
       onCancel={handleCancel}
       onOk={() => form.submit()}
@@ -111,19 +131,69 @@ export default function UserDialog({
         >
           <Input placeholder="Nhập tên sản phẩm" />
         </Form.Item>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Form.Item label="Slug" name="slug">
+            <Input placeholder="slug (tùy chọn)" />
+          </Form.Item>
+          <Form.Item label="SKU" name="sku">
+            <Input placeholder="SKU (tùy chọn)" />
+          </Form.Item>
+        </div>
+
+        <Form.Item label="Mô tả ngắn" name="short_desc">
+          <Input.TextArea
+            placeholder="Mô tả ngắn"
+            autoSize={{ minRows: 2, maxRows: 4 }}
+          />
+        </Form.Item>
+
         <Form.Item label="Mô tả" name="description">
           <Input.TextArea
             placeholder="Nhập mô tả sản phẩm"
-            autoSize={{ minRows: 3, maxRows: 6 }}
+            autoSize={{ minRows: 3, maxRows: 8 }}
           />
         </Form.Item>
-        <Form.Item
-          label="Giá"
-          name="price"
-          rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm" }]}
-        >
-          <Input type="number" placeholder="Nhập giá sản phẩm" />
+
+        <Form.Item label="Thuộc tính (JSON)" name="attributes">
+          <Input.TextArea
+            placeholder='Ví dụ: {"color":"red","size":"M"}'
+            autoSize={{ minRows: 2, maxRows: 6 }}
+          />
         </Form.Item>
+
+        <Form.Item label="Danh mục (id)" name="category_id">
+          <Input placeholder="category id" />
+        </Form.Item>
+
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <Form.Item label="Giá cơ bản" name="base_price">
+            <InputNumber className="w-full" min={0} />
+          </Form.Item>
+          <Form.Item label="Giá bán" name="sale_price">
+            <InputNumber className="w-full" min={0} />
+          </Form.Item>
+          <Form.Item label="Giá vốn" name="cost_price">
+            <InputNumber className="w-full" min={0} />
+          </Form.Item>
+          <Form.Item label="Tồn kho" name="stock">
+            <InputNumber className="w-full" min={0} />
+          </Form.Item>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Form.Item label="Trạng thái" name="status">
+            <Select>
+              <Select.Option value="DRAFT">DRAFT</Select.Option>
+              <Select.Option value="PUBLISHED">PUBLISHED</Select.Option>
+              <Select.Option value="ARCHIVED">ARCHIVED</Select.Option>
+              <Select.Option value="OUT_OF_STOCK">OUT_OF_STOCK</Select.Option>
+            </Select>
+          </Form.Item>
+          <Form.Item label="Kích hoạt" name="is_active" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+        </div>
       </Form>
     </Modal>
   );

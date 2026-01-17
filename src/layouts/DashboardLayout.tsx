@@ -89,7 +89,6 @@ export default function DashboardLayout() {
     },
   ];
 
-  // Tìm active key
   const getSelectedKey = () => {
     const path = location.pathname;
     if (path === "/") return "/";
@@ -101,14 +100,25 @@ export default function DashboardLayout() {
 
   return (
     <Layout className="min-h-screen">
+      {/* 1. Sider: Thêm style fixed, height 100vh để cố định sidebar và logo */}
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
         className="bg-white! shadow-md"
         width={240}
+        style={{
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 50, // Đảm bảo nằm trên các phần tử khác nếu cần
+        }}
       >
-        <div className="h-16 flex items-center justify-center border-b border-gray-200">
+        {/* Phần Logo này sẽ luôn cố định ở góc trái trên cùng vì Sider đã fixed */}
+        <div className="h-16 flex items-center justify-center border-b border-gray-200 sticky top-0 bg-white z-10">
           <h1
             className={`font-bold text-indigo-600 transition-all ${
               collapsed ? "text-lg" : "text-xl"
@@ -117,6 +127,7 @@ export default function DashboardLayout() {
             {collapsed ? "CSM" : "CSM Admin"}
           </h1>
         </div>
+
         <Menu
           mode="inline"
           selectedKeys={[getSelectedKey()]}
@@ -125,9 +136,22 @@ export default function DashboardLayout() {
         />
       </Sider>
 
-      <Layout>
+      {/* 2. Layout bao quanh Header và Content: Cần margin-left để tránh bị Sider che */}
+      <Layout
+        style={{
+          marginLeft: collapsed ? 80 : 240, // Dịch chuyển nội dung sang phải
+          transition: "margin-left 0.2s", // Hiệu ứng mượt khi đóng mở menu
+        }}
+      >
+        {/* 3. Header: Sử dụng sticky để dính lên trên cùng của phần nội dung phải */}
         <Header
-          style={{ background: colorBgContainer }}
+          style={{
+            background: colorBgContainer,
+            position: "sticky",
+            top: 0,
+            zIndex: 40,
+            width: "100%",
+          }}
           className="px-6! flex items-center justify-between shadow-sm"
         >
           <div
@@ -159,7 +183,10 @@ export default function DashboardLayout() {
 
         <Content
           className="m-6 p-6 bg-gray-50"
-          style={{ borderRadius: borderRadiusLG }}
+          style={{
+            borderRadius: borderRadiusLG,
+            minHeight: "calc(100vh - 112px)", // (64px header + 48px margin) để footer không bị lơ lửng nếu nội dung ít
+          }}
         >
           <Outlet />
         </Content>

@@ -7,13 +7,13 @@ import type {
   AuthResponse,
   User,
   ApiResponse,
-} from "./types";
+} from "../modules/auth/types";
 
 export const authApi = {
   login: async (data: LoginDto) => {
     const response = await api.post<ApiResponse<AuthResponse>>(
       "/auth/login",
-      data
+      data,
     );
     return response.data.data;
   },
@@ -21,7 +21,7 @@ export const authApi = {
   register: async (data: RegisterDto) => {
     const response = await api.post<ApiResponse<AuthResponse>>(
       "/auth/register",
-      data
+      data,
     );
     return response.data.data;
   },
@@ -34,7 +34,7 @@ export const authApi = {
   refreshToken: async (data: RefreshTokenDto) => {
     const response = await api.post<ApiResponse<AuthResponse>>(
       "/auth/refresh",
-      data
+      data,
     );
     return response.data.data;
   },
@@ -42,7 +42,7 @@ export const authApi = {
   changePassword: async (data: ChangePasswordDto) => {
     const response = await api.post<ApiResponse<void>>(
       "/auth/change-password",
-      data
+      data,
     );
     return response.data;
   },

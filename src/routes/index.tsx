@@ -10,6 +10,7 @@ import React from "react";
 
 import UsersPage from "@/modules/users/pages/UsersPage";
 import ProductsPage from "@/modules/products/pages/ProductsPage";
+import ProductDetailPage from "@/modules/products/pages/ProductDetailPage";
 
 const Dashboard = () => (
   <div>
@@ -68,6 +69,10 @@ const router = createBrowserRouter([
       {
         path: "products",
         element: <ProductsPage />,
+      },
+      {
+        path: "products/:id",
+        element: <ProductDetailPage />,
       },
       {
         path: "categories",

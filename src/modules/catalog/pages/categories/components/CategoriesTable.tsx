@@ -2,7 +2,7 @@ import { Table, Button, Space, Tag, Tooltip, Switch, message } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { categoriesApi } from "../../../apis/categories";
+import { categoriesApi } from "@/apis/categories";
 import type { Category } from "../types";
 
 interface CategoriesTableProps {
@@ -26,7 +26,7 @@ export default function CategoriesTable({
       categoriesApi.updateCategory(category.id, {
         isActive: !category.isActive,
       }),
-    onSuccess: () => {
+    onSuccess: (_, category) => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       queryClient.invalidateQueries({ queryKey: ["categoriesTree"] });
       message.success("Cập nhật trạng thái thành công");

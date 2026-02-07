@@ -5,14 +5,14 @@ import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TabsProps } from "antd";
 import { productsApi } from "../../../apis/products";
 import { categoriesApi } from "../../../apis/categories";
-import ProductsTable from "../";
-import CategoriesTable from "../../categories/components/CategoriesTable";
-import ProductDialog from "../../products/components/ProductDialog";
-import DeleteProductDialog from "../../products/components/DeleteProductDialog";
-import CategoryDialog from "../../categories/components/CategoryDialog";
-import DeleteCategoryDialog from "../../categories/components/DeleteCategoryDialog";
-import { useProductsManagement } from "../../products/hooks/useProductsManagement";
-import { useCategoriesManagement } from "../../categories/hooks/useCategoriesManagement";
+import ProductsTable from "../pages/products/components/ProductsTable";
+import CategoriesTable from "../pages/categories/components/CategoriesTable";
+import ProductDialog from "../pages/products/components/ProductDialog";
+import DeleteProductDialog from "../pages/products/components/DeleteProductDialog";
+import CategoryDialog from "../pages/categories/components/CategoryDialog";
+import DeleteCategoryDialog from "../pages/categories/components/DeleteCategoryDialog";
+import { useProductsManagement } from "../pages/products/hooks/useProductsManagement";
+import { useCategoriesManagement } from "../pages/categories/hooks/useCategoriesManagement";
 
 const { Search } = Input;
 

@@ -1,6 +1,6 @@
 import { Modal, message } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { categoriesApi } from "../../../apis/categories";
+import { categoriesApi } from "@/apis/categories";
 import type { Category } from "../types";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 

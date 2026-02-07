@@ -11,7 +11,7 @@ import {
 } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { productsApi } from "../../../apis/products";
+import { productsApi } from "@/apis/products";
 import type { Product } from "../types";
 import ExpandableDescription from "./ExpandableDescription";
 

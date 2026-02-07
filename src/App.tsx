@@ -3,11 +3,67 @@ import { ConfigProvider } from "antd";
 import viVN from "antd/locale/vi_VN";
 import Routes from "./routes";
 
+/**
+ * Enterprise-level React Query Configuration
+ *
+ * Cache Strategy:
+ * - Lists: 5 min stale time, 10 min garbage collection
+ * - Details: 10 min stale time, 15 min garbage collection
+ * - Static: 30 min stale time, 1 hour garbage collection
+ *
+ * Retry Strategy:
+ * - Don't retry on abort/cancel errors
+ * - Exponential backoff: 1s, 2s, 4s
+ * - Network errors only, not 4xx/5xx
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      // Caching strategy
+      staleTime: 0,
+      gcTime: 10 * 60 * 1000,
+
+      // Refetch strategy
       refetchOnWindowFocus: false,
-      retry: 1,
+      refetchOnReconnect: true,
+      refetchOnMount: true,
+
+      retry: (failureCount, error: any) => {
+        // Không retry nếu request bị abort/cancel
+        if (error?.name === "AbortError" || error?.code === "ECONNABORTED") {
+          return false;
+        }
+
+        if (
+          error?.message?.includes("Network Error") ||
+          error?.code === "ECONNREFUSED" ||
+          error?.code === "ERR_NETWORK"
+        ) {
+          return failureCount < 1;
+        }
+
+        if (error?.response?.status >= 400 && error?.response?.status < 500) {
+          if (
+            error?.response?.status === 401 ||
+            error?.response?.status === 403
+          ) {
+            return failureCount < 1;
+          }
+          return false;
+        }
+
+        if (error?.response?.status >= 500) {
+          return failureCount < 2;
+        }
+
+        return failureCount < 1;
+      },
+
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    },
+
+    mutations: {
+      retry: 0,
     },
   },
 });

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button, Input, Card, Typography, Alert } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { productsApi } from "../../../apis/products";
+import { productsApi } from "@/apis/products";
 import ProductDialog from "../components/ProductDialog";
 import DeleteProductDialog from "../components/DeleteProductDialog";
 import ProductsTable from "../components/ProductsTable";

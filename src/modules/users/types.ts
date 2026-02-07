@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/lib/types";
+import type { ApiResponse } from "@/lib/types";
 
 export interface User {
   id: string;

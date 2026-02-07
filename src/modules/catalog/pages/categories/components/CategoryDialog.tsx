@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Modal, Form, Input, Switch, message, TreeSelect } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { categoriesApi } from "../../../apis/categories";
+import { categoriesApi } from "@/apis/categories";
 import type { Category, CreateCategoryDto, UpdateCategoryDto } from "../types";
 
 const { TextArea } = Input;

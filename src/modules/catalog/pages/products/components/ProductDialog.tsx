@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { Modal, Form, message, Button, Card, Row, Col, Divider } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { productsApi } from "../../../apis/products";
-import { categoriesApi } from "../../../apis/categories";
+import { productsApi } from "@/apis/products";
+import { categoriesApi } from "@/apis/categories";
 import type { Product } from "../types";
 import {
   CoreInput,

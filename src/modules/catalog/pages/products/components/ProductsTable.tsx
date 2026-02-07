@@ -9,7 +9,7 @@ import {
   Switch,
   Avatar,
 } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, HistoryOutlined, ToolOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { productsApi } from "@/apis/products";
 import type { Product } from "../types";
@@ -26,6 +26,8 @@ interface ProductsTableProps {
   };
   onEdit: (product: Product) => void;
   onDelete: (product: Product) => void;
+  onAdjustStock?: (product: Product) => void;
+  onViewHistory?: (product: Product) => void;
 }
 
 export default function ProductsTable({
@@ -34,6 +36,8 @@ export default function ProductsTable({
   pagination,
   onEdit,
   onDelete,
+  onAdjustStock,
+  onViewHistory,
 }: ProductsTableProps) {
   const queryClient = useQueryClient();
 
@@ -144,8 +148,31 @@ export default function ProductsTable({
       title: "Tồn kho",
       dataIndex: "stock",
       key: "stock",
-      width: 100,
-      align: "right",
+      width: 150,
+      align: "center",
+      render: (_: any, record: Product) => {
+        const stock = record.stock || 0;
+        const lowStock = record.lowStock || 10;
+        const isOutOfStock = stock === 0;
+        const isLowStock = stock > 0 && stock <= lowStock;
+
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <span className={`font-semibold text-lg ${isOutOfStock ? "text-red-600" :
+              isLowStock ? "text-orange-600" :
+                "text-gray-900"
+              }`}>
+              {stock}
+            </span>
+            {isOutOfStock && (
+              <Tag color="red" className="text-xs">Hết hàng</Tag>
+            )}
+            {isLowStock && (
+              <Tag color="orange" className="text-xs">Sắp hết</Tag>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Biến thể",
@@ -176,7 +203,8 @@ export default function ProductsTable({
       title: "Thao tác",
       key: "action",
       align: "center",
-      width: 140,
+      width: 180,
+      fixed: "right",
       render: (_: any, record: Product) => (
         <Space size="small">
           <Tooltip title="Chỉnh sửa">
@@ -187,6 +215,26 @@ export default function ProductsTable({
               className="text-blue-600 hover:text-blue-700!"
             />
           </Tooltip>
+          {onAdjustStock && (
+            <Tooltip title="Điều chỉnh tồn kho">
+              <Button
+                type="text"
+                icon={<ToolOutlined />}
+                onClick={() => onAdjustStock(record)}
+                className="text-green-600 hover:text-green-700!"
+              />
+            </Tooltip>
+          )}
+          {onViewHistory && (
+            <Tooltip title="Lịch sử tồn kho">
+              <Button
+                type="text"
+                icon={<HistoryOutlined />}
+                onClick={() => onViewHistory(record)}
+                className="text-purple-600 hover:text-purple-700!"
+              />
+            </Tooltip>
+          )}
           <Tooltip title="Xóa">
             <Button
               type="text"
@@ -199,6 +247,7 @@ export default function ProductsTable({
             <Switch
               checked={!!record.isActive}
               onChange={() => handleToggleStatus(record)}
+              size="small"
             />
           </Tooltip>
         </Space>

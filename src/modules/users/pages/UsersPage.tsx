@@ -127,7 +127,8 @@ export default function UsersPage() {
       title: "Thao tác",
       key: "action",
       align: "center",
-      width: 120,
+      width: 140,
+      fixed: "right",
       render: (_: any, record: User) => (
         <Space size="small">
           <Tooltip title="Chỉnh sửa">

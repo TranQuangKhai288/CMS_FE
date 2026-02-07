@@ -10,6 +10,9 @@ import React from "react";
 
 import UsersPage from "@/modules/users/pages/UsersPage";
 import { CategoriesProductsPage } from "@/modules/catalog";
+import OrdersPage from "@/modules/orders/pages/OrdersPage";
+import CustomersPage from "@/modules/customers/pages/CustomersPage";
+import DiscountsPage from "@/modules/discounts/pages/DiscountsPage";
 
 const Dashboard = () => (
   <div>
@@ -31,15 +34,6 @@ const Dashboard = () => (
         <h3 className="text-gray-500 text-sm font-medium">Products</h3>
         <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
       </div>
-    </div>
-  </div>
-);
-
-const ModulePlaceholder = ({ title }: { title: string }) => (
-  <div>
-    <h1 className="text-2xl font-bold mb-6">{title}</h1>
-    <div className="bg-white p-12 rounded-lg shadow-sm border border-gray-200 text-center">
-      <p className="text-gray-500">This module is under development.</p>
     </div>
   </div>
 );
@@ -71,11 +65,15 @@ const router = createBrowserRouter([
       },
       {
         path: "orders",
-        element: <ModulePlaceholder title="Orders Management" />,
+        element: <OrdersPage />,
+      },
+      {
+        path: "customers",
+        element: <CustomersPage />,
       },
       {
         path: "discounts",
-        element: <ModulePlaceholder title="Discounts Management" />,
+        element: <DiscountsPage />,
       },
     ],
   },

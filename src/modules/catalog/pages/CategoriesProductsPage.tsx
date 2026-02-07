@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, Tabs, Button, Input, Alert } from "antd";
+import { Card, Tabs, Button, Input, Alert, Select, Space } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import type { TabsProps } from "antd";
 import { productsApi } from "../../../apis/products";
@@ -13,11 +13,20 @@ import CategoryDialog from "../pages/categories/components/CategoryDialog";
 import DeleteCategoryDialog from "../pages/categories/components/DeleteCategoryDialog";
 import { useProductsManagement } from "../pages/products/hooks/useProductsManagement";
 import { useCategoriesManagement } from "../pages/categories/hooks/useCategoriesManagement";
+import AdjustStockDialog from "@/modules/inventory/components/AdjustStockDialog";
+import InventoryHistoryDialog from "@/modules/inventory/components/InventoryHistoryDialog";
+import LowStockAlert from "@/modules/inventory/components/LowStockAlert";
+import type { Product } from "../pages/products/types";
 
 const { Search } = Input;
 
 export default function CategoriesProductsPage() {
   const [activeTab, setActiveTab] = useState<string>("products");
+  const [stockFilter, setStockFilter] = useState<string>("all");
+
+  const [isAdjustStockDialogOpen, setIsAdjustStockDialogOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [selectedProductForInventory, setSelectedProductForInventory] = useState<Product | null>(null);
 
   // Products management using custom hook
   const {
@@ -51,13 +60,42 @@ export default function CategoriesProductsPage() {
     filterCategories,
   } = useCategoriesManagement();
 
+  // Inventory handlers
+  const handleAdjustStock = (product: Product) => {
+    setSelectedProductForInventory(product);
+    setIsAdjustStockDialogOpen(true);
+  };
+
+  const handleViewHistory = (product: Product) => {
+    setSelectedProductForInventory(product);
+    setIsHistoryDialogOpen(true);
+  };
+
+  const handleCloseAdjustStockDialog = () => {
+    setIsAdjustStockDialogOpen(false);
+    setSelectedProductForInventory(null);
+  };
+
+  const handleCloseHistoryDialog = () => {
+    setIsHistoryDialogOpen(false);
+    setSelectedProductForInventory(null);
+  };
+
+  const handleViewLowStock = () => {
+    setStockFilter("low");
+  };
+
+  const handleViewOutOfStock = () => {
+    setStockFilter("out");
+  };
+
   // Products queries
   const {
     data: productsData,
     isLoading: productsLoading,
     isError: productsError,
   } = useQuery({
-    queryKey: ["products", productPage, productSearchText, productLimit],
+    queryKey: ["products", productPage, productSearchText, productLimit, stockFilter],
     queryFn: () =>
       productsApi.getProducts({
         page: productPage,
@@ -66,6 +104,19 @@ export default function CategoriesProductsPage() {
       }),
     enabled: activeTab === "products",
   });
+
+  // Filter products by stock status
+  const filteredProducts = productsData?.data?.filter((product: Product) => {
+    if (stockFilter === "low") {
+      const stock = product.stock || 0;
+      const lowStock = product.lowStock || 10;
+      return stock > 0 && stock <= lowStock;
+    }
+    if (stockFilter === "out") {
+      return (product.stock || 0) === 0;
+    }
+    return true;
+  }) || [];
 
   // Categories queries (dạng cây)
   const {
@@ -98,15 +149,33 @@ export default function CategoriesProductsPage() {
       ),
       children: (
         <div className="space-y-4">
+          {/* Low Stock Alert */}
+          <LowStockAlert
+            onViewLowStock={handleViewLowStock}
+            onViewOutOfStock={handleViewOutOfStock}
+          />
+
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <Search
-              placeholder="Tìm kiếm theo tên hoặc SKU..."
-              allowClear
-              enterButton={<SearchOutlined />}
-              size="large"
-              onSearch={handleProductSearch}
-              className="max-w-md"
-            />
+            <Space size="middle" wrap className="flex-1">
+              <Search
+                placeholder="Tìm kiếm theo tên hoặc SKU..."
+                allowClear
+                enterButton={<SearchOutlined />}
+                size="large"
+                onSearch={handleProductSearch}
+                className="max-w-md"
+              />
+              <Select
+                value={stockFilter}
+                onChange={setStockFilter}
+                size="large"
+                style={{ width: 180 }}
+              >
+                <Select.Option value="all">Tất cả</Select.Option>
+                <Select.Option value="low">🟠 Sắp hết hàng</Select.Option>
+                <Select.Option value="out">🔴 Hết hàng</Select.Option>
+              </Select>
+            </Space>
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -126,7 +195,7 @@ export default function CategoriesProductsPage() {
             />
           ) : (
             <ProductsTable
-              data={productsData?.data || []}
+              data={filteredProducts}
               loading={productsLoading}
               pagination={{
                 current: productPage,
@@ -136,6 +205,8 @@ export default function CategoriesProductsPage() {
               }}
               onEdit={handleEditProduct}
               onDelete={handleDeleteProduct}
+              onAdjustStock={handleAdjustStock}
+              onViewHistory={handleViewHistory}
             />
           )}
         </div>
@@ -227,6 +298,24 @@ export default function CategoriesProductsPage() {
         isOpen={isDeleteCategoryDialogOpen}
         onClose={handleCloseDeleteCategoryDialog}
         category={selectedCategory}
+      />
+
+      {/* Inventory Dialogs */}
+      <AdjustStockDialog
+        isOpen={isAdjustStockDialogOpen}
+        onClose={handleCloseAdjustStockDialog}
+        product={selectedProductForInventory ? {
+          id: selectedProductForInventory.id,
+          name: selectedProductForInventory.name,
+          sku: selectedProductForInventory.sku || '',
+          stock: selectedProductForInventory.stock || 0,
+        } : null}
+      />
+      <InventoryHistoryDialog
+        isOpen={isHistoryDialogOpen}
+        onClose={handleCloseHistoryDialog}
+        productId={selectedProductForInventory?.id || null}
+        productName={selectedProductForInventory?.name}
       />
     </div>
   );

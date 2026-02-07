@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Layout, Menu, Avatar, Dropdown, Typography, theme } from "antd";
 import {
@@ -23,6 +23,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [optimisticKey, setOptimisticKey] = useState<string | null>(null); // ⚡ Optimistic UI
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -32,40 +33,64 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
-  const menuItems: MenuProps["items"] = [
+  const menuItems = useMemo<MenuProps["items"]>(() => [
     {
       key: "/",
       icon: <HomeOutlined />,
       label: "Dashboard",
-      onClick: () => navigate("/"),
+      onClick: () => {
+        setOptimisticKey("/");
+        navigate("/");
+      },
     },
     {
       key: "/users",
       icon: <UserOutlined />,
       label: "Users",
-      onClick: () => navigate("/users"),
+      onClick: () => {
+        setOptimisticKey("/users");
+        navigate("/users");
+      },
     },
     {
       key: "/products-and-categories",
       icon: <ShoppingOutlined />,
       label: "Products & Categories",
-      onClick: () => navigate("/products-and-categories"),
+      onClick: () => {
+        setOptimisticKey("/products-and-categories");
+        navigate("/products-and-categories");
+      },
     },
     {
       key: "/orders",
       icon: <ShoppingCartOutlined />,
       label: "Orders",
-      onClick: () => navigate("/orders"),
+      onClick: () => {
+        setOptimisticKey("/orders");
+        navigate("/orders");
+      },
+    },
+    {
+      key: "/customers",
+      icon: <UserOutlined />,
+      label: "Customers",
+      onClick: () => {
+        setOptimisticKey("/customers");
+        navigate("/customers");
+      },
     },
     {
       key: "/discounts",
       icon: <TagOutlined />,
       label: "Discounts",
-      onClick: () => navigate("/discounts"),
+      onClick: () => {
+        setOptimisticKey("/discounts");
+        navigate("/discounts");
+      },
     },
-  ];
+  ], [navigate]);
 
-  const userMenuItems: MenuProps["items"] = [
+  const userMenuItems = useMemo<MenuProps["items"]>(() => [
     {
       key: "profile",
       icon: <UserOutlined />,
@@ -81,20 +106,41 @@ export default function DashboardLayout() {
       danger: true,
       onClick: handleLogout,
     },
-  ];
+  ], [handleLogout]);
 
-  const getSelectedKey = () => {
+  // ⚡ OPTIMIZED: Memoize selectedKey với optimistic fallback
+  const selectedKey = useMemo(() => {
+    if (optimisticKey) return optimisticKey;
+
     const path = location.pathname;
     if (path === "/") return "/";
-    const item = menuItems.find(
-      (item) => item?.key !== "/" && path.startsWith(item?.key as string),
-    );
-    return (item?.key as string) || "/";
-  };
+    return path.startsWith("/users") ? "/users"
+      : path.startsWith("/products-and-categories") ? "/products-and-categories"
+        : path.startsWith("/orders") ? "/orders"
+          : path.startsWith("/customers") ? "/customers"
+            : path.startsWith("/discounts") ? "/discounts"
+              : "/";
+  }, [location.pathname, optimisticKey]);
+
+  useEffect(() => {
+    if (optimisticKey) {
+      const path = location.pathname;
+      const actualKey = path === "/" ? "/"
+        : path.startsWith("/users") ? "/users"
+          : path.startsWith("/products-and-categories") ? "/products-and-categories"
+            : path.startsWith("/orders") ? "/orders"
+              : path.startsWith("/customers") ? "/customers"
+                : path.startsWith("/discounts") ? "/discounts"
+                  : "/";
+
+      if (actualKey === optimisticKey) {
+        setOptimisticKey(null);
+      }
+    }
+  }, [location.pathname, optimisticKey]);
 
   return (
     <Layout className="min-h-screen">
-      {/* 1. Sider: Thêm style fixed, height 100vh để cố định sidebar và logo */}
       <Sider
         trigger={null}
         collapsible
@@ -108,15 +154,13 @@ export default function DashboardLayout() {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 50, // Đảm bảo nằm trên các phần tử khác nếu cần
+          zIndex: 50,
         }}
       >
-        {/* Phần Logo này sẽ luôn cố định ở góc trái trên cùng vì Sider đã fixed */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200 sticky top-0 bg-white z-10">
           <h1
-            className={`font-bold text-indigo-600 transition-all ${
-              collapsed ? "text-lg" : "text-xl"
-            }`}
+            className={`font-bold text-indigo-600 transition-all ${collapsed ? "text-lg" : "text-xl"
+              }`}
           >
             {collapsed ? "CSM" : "CSM Admin"}
           </h1>
@@ -124,20 +168,20 @@ export default function DashboardLayout() {
 
         <Menu
           mode="inline"
-          selectedKeys={[getSelectedKey()]}
+          selectedKeys={[selectedKey]}
           items={menuItems}
           className="border-r-0"
+          motion={{}}
+          inlineCollapsed={collapsed}
         />
       </Sider>
 
-      {/* 2. Layout bao quanh Header và Content: Cần margin-left để tránh bị Sider che */}
       <Layout
         style={{
-          marginLeft: collapsed ? 80 : 240, // Dịch chuyển nội dung sang phải
-          transition: "margin-left 0.2s", // Hiệu ứng mượt khi đóng mở menu
+          marginLeft: collapsed ? 80 : 240,
+          transition: "margin-left 0.2s",
         }}
       >
-        {/* 3. Header: Sử dụng sticky để dính lên trên cùng của phần nội dung phải */}
         <Header
           style={{
             background: colorBgContainer,
@@ -179,7 +223,7 @@ export default function DashboardLayout() {
           className="m-6 p-6 bg-gray-50"
           style={{
             borderRadius: borderRadiusLG,
-            minHeight: "calc(100vh - 112px)", // (64px header + 48px margin) để footer không bị lơ lửng nếu nội dung ít
+            minHeight: "calc(100vh - 112px)",
           }}
         >
           <Outlet />

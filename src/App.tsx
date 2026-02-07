@@ -19,17 +19,14 @@ import Routes from "./routes";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Caching strategy
-      staleTime: 0,
+      staleTime: 2 * 60 * 1000,
       gcTime: 10 * 60 * 1000,
 
-      // Refetch strategy
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      refetchOnMount: true,
+      refetchOnMount: false,
 
       retry: (failureCount, error: any) => {
-        // Không retry nếu request bị abort/cancel
         if (error?.name === "AbortError" || error?.code === "ECONNABORTED") {
           return false;
         }

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Modal, Form, Input, Select, message } from "antd";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { usersApi } from "../api";
-import { rolesApi } from "@/modules/roles/api";
+import { rolesApi } from "@/apis/roles";
 import type { User } from "../types";
 
 interface UserDialogProps {

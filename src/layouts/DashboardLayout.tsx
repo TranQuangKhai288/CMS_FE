@@ -46,16 +46,10 @@ export default function DashboardLayout() {
       onClick: () => navigate("/users"),
     },
     {
-      key: "/products",
+      key: "/products-and-categories",
       icon: <ShoppingOutlined />,
-      label: "Products",
-      onClick: () => navigate("/products"),
-    },
-    {
-      key: "/categories",
-      icon: <AppstoreOutlined />,
-      label: "Categories",
-      onClick: () => navigate("/categories"),
+      label: "Products & Categories",
+      onClick: () => navigate("/products-and-categories"),
     },
     {
       key: "/orders",
@@ -93,7 +87,7 @@ export default function DashboardLayout() {
     const path = location.pathname;
     if (path === "/") return "/";
     const item = menuItems.find(
-      (item) => item?.key !== "/" && path.startsWith(item?.key as string)
+      (item) => item?.key !== "/" && path.startsWith(item?.key as string),
     );
     return (item?.key as string) || "/";
   };

@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import type { RoleListResponse } from "./types";
+import type { RoleListResponse } from "../modules/roles/types";
 
 export const rolesApi = {
   // Lấy danh sách roles

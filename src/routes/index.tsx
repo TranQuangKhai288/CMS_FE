@@ -9,7 +9,7 @@ import { useAuthStore } from "@/modules/auth/store";
 import React from "react";
 
 import UsersPage from "@/modules/users/pages/UsersPage";
-import ProductsPage from "@/modules/products/pages/ProductsPage";
+import { CategoriesProductsPage } from "@/modules/catalog";
 
 const Dashboard = () => (
   <div>
@@ -66,12 +66,8 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: "users", element: <UsersPage /> },
       {
-        path: "products",
-        element: <ProductsPage />,
-      },
-      {
-        path: "categories",
-        element: <ModulePlaceholder title="Categories Management" />,
+        path: "products-and-categories",
+        element: <CategoriesProductsPage />,
       },
       {
         path: "orders",

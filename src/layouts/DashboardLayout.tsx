@@ -89,7 +89,6 @@ export default function DashboardLayout() {
     },
   ];
 
-  // Tìm active key
   const getSelectedKey = () => {
     const path = location.pathname;
     if (path === "/") return "/";
@@ -107,8 +106,18 @@ export default function DashboardLayout() {
         collapsed={collapsed}
         className="bg-white! shadow-md"
         width={240}
+        style={{
+          overflow: "auto",
+          height: "100vh",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 50, // Đảm bảo nằm trên các phần tử khác nếu cần
+        }}
       >
-        <div className="h-16 flex items-center justify-center border-b border-gray-200">
+        {/* Phần Logo này sẽ luôn cố định ở góc trái trên cùng vì Sider đã fixed */}
+        <div className="h-16 flex items-center justify-center border-b border-gray-200 sticky top-0 bg-white z-10">
           <h1
             className={`font-bold text-indigo-600 transition-all ${collapsed ? "text-lg" : "text-xl"
               }`}
@@ -116,6 +125,7 @@ export default function DashboardLayout() {
             {collapsed ? "CSM" : "CSM Admin"}
           </h1>
         </div>
+
         <Menu
           mode="inline"
           selectedKeys={[getSelectedKey()]}

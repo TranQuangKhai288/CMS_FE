@@ -99,8 +99,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <Layout className="min-h-screen">
-      {/* 1. Sider: Thêm style fixed, height 100vh để cố định sidebar và logo */}
+    <Layout className="h-screen">
       <Sider
         trigger={null}
         collapsible
@@ -120,9 +119,8 @@ export default function DashboardLayout() {
         {/* Phần Logo này sẽ luôn cố định ở góc trái trên cùng vì Sider đã fixed */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200 sticky top-0 bg-white z-10">
           <h1
-            className={`font-bold text-indigo-600 transition-all ${
-              collapsed ? "text-lg" : "text-xl"
-            }`}
+            className={`font-bold text-indigo-600 transition-all ${collapsed ? "text-lg" : "text-xl"
+              }`}
           >
             {collapsed ? "CSM" : "CSM Admin"}
           </h1>
@@ -136,23 +134,10 @@ export default function DashboardLayout() {
         />
       </Sider>
 
-      {/* 2. Layout bao quanh Header và Content: Cần margin-left để tránh bị Sider che */}
-      <Layout
-        style={{
-          marginLeft: collapsed ? 80 : 240, // Dịch chuyển nội dung sang phải
-          transition: "margin-left 0.2s", // Hiệu ứng mượt khi đóng mở menu
-        }}
-      >
-        {/* 3. Header: Sử dụng sticky để dính lên trên cùng của phần nội dung phải */}
+      <Layout className="flex flex-col">
         <Header
-          style={{
-            background: colorBgContainer,
-            position: "sticky",
-            top: 0,
-            zIndex: 40,
-            width: "100%",
-          }}
-          className="px-6! flex items-center justify-between shadow-sm"
+          style={{ background: colorBgContainer }}
+          className="px-6! flex items-center justify-between shadow-sm shrink-0"
         >
           <div
             className="text-xl cursor-pointer hover:text-indigo-600 transition-colors"
@@ -162,18 +147,18 @@ export default function DashboardLayout() {
           </div>
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
+            <div className="flex h-full items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
               <Avatar
                 style={{ backgroundColor: "#6366f1" }}
                 icon={<UserOutlined />}
               >
                 {user?.email?.[0].toUpperCase()}
               </Avatar>
-              <div className="hidden sm:block">
-                <Text strong className="block text-sm">
+              <div className="hidden sm:flex sm:flex-col sm:justify-center">
+                <Text strong className="block text-sm leading-tight">
                   {user?.firstName} {user?.lastName}
                 </Text>
-                <Text type="secondary" className="text-xs">
+                <Text type="secondary" className="block text-xs leading-tight">
                   {user?.role?.name || "User"}
                 </Text>
               </div>
@@ -182,11 +167,8 @@ export default function DashboardLayout() {
         </Header>
 
         <Content
-          className="m-6 p-6 bg-gray-50"
-          style={{
-            borderRadius: borderRadiusLG,
-            minHeight: "calc(100vh - 112px)", // (64px header + 48px margin) để footer không bị lơ lửng nếu nội dung ít
-          }}
+          className="m-6 p-6 bg-gray-50 flex-1 overflow-auto"
+          style={{ borderRadius: borderRadiusLG }}
         >
           <Outlet />
         </Content>

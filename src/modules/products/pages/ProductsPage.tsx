@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
@@ -31,6 +32,7 @@ const { Title } = Typography;
 const { Search } = Input;
 
 export default function ProductsPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState("");
   const [limit] = useState(10);
@@ -208,12 +210,15 @@ export default function ProductsPage() {
       align: "center",
       width: 140,
       render: (_: any, record: Product) => (
-        <Space size="small">
+        <Space size="small" onClick={(e) => e.stopPropagation()}>
           <Tooltip title="Chỉnh sửa">
             <Button
               type="text"
               icon={<EditOutlined />}
-              onClick={() => handleEditProduct(record)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditProduct(record);
+              }}
               className="text-blue-600 hover:text-blue-700!"
             />
           </Tooltip>
@@ -222,7 +227,10 @@ export default function ProductsPage() {
               type="text"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => handleDeleteProduct(record)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteProduct(record);
+              }}
             />
           </Tooltip>
           <Tooltip title="Kích hoạt">
@@ -280,6 +288,10 @@ export default function ProductsPage() {
           dataSource={data?.data || []}
           rowKey="id"
           loading={isLoading}
+          onRow={(record) => ({
+            onClick: () => navigate(`/products/${record.id}`),
+            className: "cursor-pointer hover:bg-gray-50",
+          })}
           pagination={{
             current: page,
             pageSize: limit,

@@ -26,7 +26,8 @@ export default function CategoriesProductsPage() {
 
   const [isAdjustStockDialogOpen, setIsAdjustStockDialogOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
-  const [selectedProductForInventory, setSelectedProductForInventory] = useState<Product | null>(null);
+  const [selectedProductForInventory, setSelectedProductForInventory] =
+    useState<Product | null>(null);
 
   // Products management using custom hook
   const {
@@ -95,7 +96,13 @@ export default function CategoriesProductsPage() {
     isLoading: productsLoading,
     isError: productsError,
   } = useQuery({
-    queryKey: ["products", productPage, productSearchText, productLimit, stockFilter],
+    queryKey: [
+      "products",
+      productPage,
+      productSearchText,
+      productLimit,
+      stockFilter,
+    ],
     queryFn: () =>
       productsApi.getProducts({
         page: productPage,
@@ -106,17 +113,18 @@ export default function CategoriesProductsPage() {
   });
 
   // Filter products by stock status
-  const filteredProducts = productsData?.data?.filter((product: Product) => {
-    if (stockFilter === "low") {
-      const stock = product.stock || 0;
-      const lowStock = product.lowStock || 10;
-      return stock > 0 && stock <= lowStock;
-    }
-    if (stockFilter === "out") {
-      return (product.stock || 0) === 0;
-    }
-    return true;
-  }) || [];
+  const filteredProducts =
+    productsData?.data?.filter((product: Product) => {
+      if (stockFilter === "low") {
+        const stock = product.stock || 0;
+        const lowStock = product.lowStock || 10;
+        return stock > 0 && stock <= lowStock;
+      }
+      if (stockFilter === "out") {
+        return (product.stock || 0) === 0;
+      }
+      return true;
+    }) || [];
 
   // Categories queries (dạng cây)
   const {
@@ -304,12 +312,16 @@ export default function CategoriesProductsPage() {
       <AdjustStockDialog
         isOpen={isAdjustStockDialogOpen}
         onClose={handleCloseAdjustStockDialog}
-        product={selectedProductForInventory ? {
-          id: selectedProductForInventory.id,
-          name: selectedProductForInventory.name,
-          sku: selectedProductForInventory.sku || '',
-          stock: selectedProductForInventory.stock || 0,
-        } : null}
+        product={
+          selectedProductForInventory
+            ? {
+                id: selectedProductForInventory.id,
+                name: selectedProductForInventory.name,
+                sku: selectedProductForInventory.sku || "",
+                stock: selectedProductForInventory.stock || 0,
+              }
+            : null
+        }
       />
       <InventoryHistoryDialog
         isOpen={isHistoryDialogOpen}

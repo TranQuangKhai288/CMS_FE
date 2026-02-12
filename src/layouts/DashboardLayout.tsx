@@ -33,80 +33,86 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
-  const menuItems = useMemo<MenuProps["items"]>(() => [
-    {
-      key: "/",
-      icon: <HomeOutlined />,
-      label: "Dashboard",
-      onClick: () => {
-        setOptimisticKey("/");
-        navigate("/");
+  const menuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "/",
+        icon: <HomeOutlined />,
+        label: "Dashboard",
+        onClick: () => {
+          setOptimisticKey("/");
+          navigate("/");
+        },
       },
-    },
-    {
-      key: "/users",
-      icon: <UserOutlined />,
-      label: "Users",
-      onClick: () => {
-        setOptimisticKey("/users");
-        navigate("/users");
+      {
+        key: "/users",
+        icon: <UserOutlined />,
+        label: "Users",
+        onClick: () => {
+          setOptimisticKey("/users");
+          navigate("/users");
+        },
       },
-    },
-    {
-      key: "/products-and-categories",
-      icon: <ShoppingOutlined />,
-      label: "Products & Categories",
-      onClick: () => {
-        setOptimisticKey("/products-and-categories");
-        navigate("/products-and-categories");
+      {
+        key: "/products-and-categories",
+        icon: <ShoppingOutlined />,
+        label: "Products & Categories",
+        onClick: () => {
+          setOptimisticKey("/products-and-categories");
+          navigate("/products-and-categories");
+        },
       },
-    },
-    {
-      key: "/orders",
-      icon: <ShoppingCartOutlined />,
-      label: "Orders",
-      onClick: () => {
-        setOptimisticKey("/orders");
-        navigate("/orders");
+      {
+        key: "/orders",
+        icon: <ShoppingCartOutlined />,
+        label: "Orders",
+        onClick: () => {
+          setOptimisticKey("/orders");
+          navigate("/orders");
+        },
       },
-    },
-    {
-      key: "/customers",
-      icon: <UserOutlined />,
-      label: "Customers",
-      onClick: () => {
-        setOptimisticKey("/customers");
-        navigate("/customers");
+      {
+        key: "/customers",
+        icon: <UserOutlined />,
+        label: "Customers",
+        onClick: () => {
+          setOptimisticKey("/customers");
+          navigate("/customers");
+        },
       },
-    },
-    {
-      key: "/discounts",
-      icon: <TagOutlined />,
-      label: "Discounts",
-      onClick: () => {
-        setOptimisticKey("/discounts");
-        navigate("/discounts");
+      {
+        key: "/discounts",
+        icon: <TagOutlined />,
+        label: "Discounts",
+        onClick: () => {
+          setOptimisticKey("/discounts");
+          navigate("/discounts");
+        },
       },
-    },
-  ], [navigate]);
+    ],
+    [navigate],
+  );
 
-  const userMenuItems = useMemo<MenuProps["items"]>(() => [
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: "Thông tin cá nhân",
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "logout",
-      icon: <LogoutOutlined />,
-      label: "Đăng xuất",
-      danger: true,
-      onClick: handleLogout,
-    },
-  ], [handleLogout]);
+  const userMenuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "profile",
+        icon: <UserOutlined />,
+        label: "Thông tin cá nhân",
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "logout",
+        icon: <LogoutOutlined />,
+        label: "Đăng xuất",
+        danger: true,
+        onClick: handleLogout,
+      },
+    ],
+    [handleLogout],
+  );
 
   // ⚡ OPTIMIZED: Memoize selectedKey với optimistic fallback
   const selectedKey = useMemo(() => {
@@ -114,24 +120,36 @@ export default function DashboardLayout() {
 
     const path = location.pathname;
     if (path === "/") return "/";
-    return path.startsWith("/users") ? "/users"
-      : path.startsWith("/products-and-categories") ? "/products-and-categories"
-        : path.startsWith("/orders") ? "/orders"
-          : path.startsWith("/customers") ? "/customers"
-            : path.startsWith("/discounts") ? "/discounts"
+    return path.startsWith("/users")
+      ? "/users"
+      : path.startsWith("/products-and-categories")
+        ? "/products-and-categories"
+        : path.startsWith("/orders")
+          ? "/orders"
+          : path.startsWith("/customers")
+            ? "/customers"
+            : path.startsWith("/discounts")
+              ? "/discounts"
               : "/";
   }, [location.pathname, optimisticKey]);
 
   useEffect(() => {
     if (optimisticKey) {
       const path = location.pathname;
-      const actualKey = path === "/" ? "/"
-        : path.startsWith("/users") ? "/users"
-          : path.startsWith("/products-and-categories") ? "/products-and-categories"
-            : path.startsWith("/orders") ? "/orders"
-              : path.startsWith("/customers") ? "/customers"
-                : path.startsWith("/discounts") ? "/discounts"
-                  : "/";
+      const actualKey =
+        path === "/"
+          ? "/"
+          : path.startsWith("/users")
+            ? "/users"
+            : path.startsWith("/products-and-categories")
+              ? "/products-and-categories"
+              : path.startsWith("/orders")
+                ? "/orders"
+                : path.startsWith("/customers")
+                  ? "/customers"
+                  : path.startsWith("/discounts")
+                    ? "/discounts"
+                    : "/";
 
       if (actualKey === optimisticKey) {
         setOptimisticKey(null);
@@ -159,8 +177,9 @@ export default function DashboardLayout() {
       >
         <div className="h-16 flex items-center justify-center border-b border-gray-200 sticky top-0 bg-white z-10">
           <h1
-            className={`font-bold text-indigo-600 transition-all ${collapsed ? "text-lg" : "text-xl"
-              }`}
+            className={`font-bold text-indigo-600 transition-all ${
+              collapsed ? "text-lg" : "text-xl"
+            }`}
           >
             {collapsed ? "CSM" : "CSM Admin"}
           </h1>
@@ -183,14 +202,8 @@ export default function DashboardLayout() {
         }}
       >
         <Header
-          style={{
-            background: colorBgContainer,
-            position: "sticky",
-            top: 0,
-            zIndex: 40,
-            width: "100%",
-          }}
-          className="px-6! flex items-center justify-between shadow-sm"
+          style={{ background: colorBgContainer }}
+          className="px-6! flex items-center justify-between shadow-sm shrink-0"
         >
           <div
             className="text-xl cursor-pointer hover:text-indigo-600 transition-colors"
@@ -200,18 +213,18 @@ export default function DashboardLayout() {
           </div>
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
+            <div className="flex h-full items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
               <Avatar
                 style={{ backgroundColor: "#6366f1" }}
                 icon={<UserOutlined />}
               >
                 {user?.email?.[0].toUpperCase()}
               </Avatar>
-              <div className="hidden sm:block">
-                <Text strong className="block text-sm">
+              <div className="hidden sm:flex sm:flex-col sm:justify-center">
+                <Text strong className="block text-sm leading-tight">
                   {user?.firstName} {user?.lastName}
                 </Text>
-                <Text type="secondary" className="text-xs">
+                <Text type="secondary" className="block text-xs leading-tight">
                   {user?.role?.name || "User"}
                 </Text>
               </div>

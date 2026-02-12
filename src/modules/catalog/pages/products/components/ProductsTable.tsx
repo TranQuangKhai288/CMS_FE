@@ -1,4 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   Button,
@@ -9,7 +11,12 @@ import {
   Switch,
   Avatar,
 } from "antd";
-import { EditOutlined, DeleteOutlined, HistoryOutlined, ToolOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  HistoryOutlined,
+  ToolOutlined,
+} from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { productsApi } from "@/apis/products";
 import type { Product } from "../types";
@@ -40,7 +47,7 @@ export default function ProductsTable({
   onViewHistory,
 }: ProductsTableProps) {
   const queryClient = useQueryClient();
-
+  const navigate = useNavigate();
   const toggleStatusMutation = useMutation({
     mutationFn: (id: string) => productsApi.toggleProductStatus(id),
     onSuccess: () => {
@@ -158,17 +165,26 @@ export default function ProductsTable({
 
         return (
           <div className="flex flex-col items-center gap-1">
-            <span className={`font-semibold text-lg ${isOutOfStock ? "text-red-600" :
-              isLowStock ? "text-orange-600" :
-                "text-gray-900"
-              }`}>
+            <span
+              className={`font-semibold text-lg ${
+                isOutOfStock
+                  ? "text-red-600"
+                  : isLowStock
+                    ? "text-orange-600"
+                    : "text-gray-900"
+              }`}
+            >
               {stock}
             </span>
             {isOutOfStock && (
-              <Tag color="red" className="text-xs">Hết hàng</Tag>
+              <Tag color="red" className="text-xs">
+                Hết hàng
+              </Tag>
             )}
             {isLowStock && (
-              <Tag color="orange" className="text-xs">Sắp hết</Tag>
+              <Tag color="orange" className="text-xs">
+                Sắp hết
+              </Tag>
             )}
           </div>
         );
@@ -206,12 +222,15 @@ export default function ProductsTable({
       width: 180,
       fixed: "right",
       render: (_: any, record: Product) => (
-        <Space size="small">
+        <Space size="small" onClick={(e) => e.stopPropagation()}>
           <Tooltip title="Chỉnh sửa">
             <Button
               type="text"
               icon={<EditOutlined />}
-              onClick={() => onEdit(record)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(record);
+              }}
               className="text-blue-600 hover:text-blue-700!"
             />
           </Tooltip>
@@ -240,7 +259,10 @@ export default function ProductsTable({
               type="text"
               danger
               icon={<DeleteOutlined />}
-              onClick={() => onDelete(record)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(record);
+              }}
             />
           </Tooltip>
           <Tooltip title="Kích hoạt">
@@ -261,6 +283,10 @@ export default function ProductsTable({
       dataSource={data}
       rowKey="id"
       loading={loading}
+      onRow={(record) => ({
+        onClick: () => navigate(`products/${record.id}`),
+        className: "cursor-pointer hover:bg-gray-50",
+      })}
       pagination={{
         current: pagination.current,
         pageSize: pagination.pageSize,

@@ -10,6 +10,7 @@ import React from "react";
 
 import UsersPage from "@/modules/users/pages/UsersPage";
 import { CategoriesProductsPage } from "@/modules/catalog";
+import ProductDetailPage from "@/modules/catalog/pages/products/pages/ProductDetailPage";
 import OrdersPage from "@/modules/orders/pages/OrdersPage";
 import CustomersPage from "@/modules/customers/pages/CustomersPage";
 import DiscountsPage from "@/modules/discounts/pages/DiscountsPage";
@@ -61,7 +62,16 @@ const router = createBrowserRouter([
       { path: "users", element: <UsersPage /> },
       {
         path: "products-and-categories",
-        element: <CategoriesProductsPage />,
+        children: [
+          {
+            index: true,
+            element: <CategoriesProductsPage />,
+          },
+          {
+            path: "products/:id",
+            element: <ProductDetailPage />,
+          },
+        ],
       },
       {
         path: "orders",

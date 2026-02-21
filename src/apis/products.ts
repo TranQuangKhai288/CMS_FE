@@ -6,7 +6,7 @@ import type {
   ProductResponse,
   CreateProductDto,
   UpdateProductDto,
-} from "../modules/products/types";
+} from "../modules/catalog/pages/products/types";
 
 export const productsApi = {
   // Lấy danh sách users với phân trang và tìm kiếm

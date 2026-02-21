@@ -12,6 +12,7 @@ import UsersPage from "@/modules/users/pages/UsersPage";
 import { CategoriesProductsPage } from "@/modules/catalog";
 import ProductDetailPage from "@/modules/catalog/pages/products/pages/ProductDetailPage";
 import OrdersPage from "@/modules/orders/pages/OrdersPage";
+import OrderDetailPage from "@/modules/orders/pages/OrderDetailPage";
 import CustomersPage from "@/modules/customers/pages/CustomersPage";
 import DiscountsPage from "@/modules/discounts/pages/DiscountsPage";
 
@@ -75,7 +76,16 @@ const router = createBrowserRouter([
       },
       {
         path: "orders",
-        element: <OrdersPage />,
+        children: [
+          {
+            index: true,
+            element: <OrdersPage />,
+          },
+          {
+            path: ":id",
+            element: <OrderDetailPage />,
+          },
+        ],
       },
       {
         path: "customers",

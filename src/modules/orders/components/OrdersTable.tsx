@@ -166,6 +166,10 @@ export default function OrdersTable({
             }}
             scroll={{ x: 1200 }}
             className="overflow-x-auto"
+            onRow={(record) => ({
+                onClick: () => onView(record),
+                style: { cursor: "pointer" },
+            })}
         />
     );
 }

@@ -11,6 +11,7 @@ import React from "react";
 import UsersPage from "@/modules/users/pages/UsersPage";
 import { CategoriesProductsPage } from "@/modules/catalog";
 import OrdersPage from "@/modules/orders/pages/OrdersPage";
+import OrderDetailPage from "@/modules/orders/pages/OrderDetailPage";
 import CustomersPage from "@/modules/customers/pages/CustomersPage";
 import DiscountsPage from "@/modules/discounts/pages/DiscountsPage";
 
@@ -66,6 +67,10 @@ const router = createBrowserRouter([
       {
         path: "orders",
         element: <OrdersPage />,
+      },
+      {
+        path: "orders/:id",
+        element: <OrderDetailPage />,
       },
       {
         path: "customers",

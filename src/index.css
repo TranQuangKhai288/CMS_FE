@@ -1,1 +1,70 @@
 @import "tailwindcss";
+
+/* Ensure full height layout */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Product description HTML content styling */
+.product-description {
+  line-height: 1.8;
+  color: #333;
+}
+
+.product-description p {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.product-description strong {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.product-description ul {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.product-description li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.product-description ul li {
+  margin-bottom: 0.5rem;
+}
+
+/* Header user dropdown menu styling */
+.header-user-dropdown {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.header-user-dropdown .ant-dropdown-menu {
+  min-width: 180px;
+  padding: 4px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 0;
+}
+
+.header-user-dropdown .ant-dropdown-menu-item {
+  padding: 8px 16px;
+  height: auto;
+  line-height: 1.5;
+}
+
+.header-user-dropdown .ant-dropdown-menu-item-icon {
+  margin-right: 8px;
+}
+
+/* Ensure header positioning */
+#main-header {
+  position: relative;
+  z-index: 100;
+}

@@ -4,49 +4,50 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Table,
   Button,
-  Input,
   Space,
   Tag,
   Tooltip,
-  Card,
-  Typography,
   message,
-  Alert,
   Switch,
   Avatar,
 } from "antd";
 import {
-  PlusOutlined,
-  SearchOutlined,
   EditOutlined,
   DeleteOutlined,
+  HistoryOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { productsApi } from "../api";
-import ProductDialog from "../components/ProductDialog";
-import DeleteProductDialog from "../components/DeleteProductDialog";
+import { productsApi } from "@/apis/products";
 import type { Product } from "../types";
-import ExpandableDescription from "../components/ExpandableDescription";
+import ExpandableDescription from "./ExpandableDescription";
 
-const { Title } = Typography;
-const { Search } = Input;
+interface ProductsTableProps {
+  data: Product[];
+  loading: boolean;
+  pagination: {
+    current: number;
+    pageSize: number;
+    total: number;
+    onChange: (page: number) => void;
+  };
+  onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
+  onAdjustStock?: (product: Product) => void;
+  onViewHistory?: (product: Product) => void;
+}
 
-export default function ProductsPage() {
-  const navigate = useNavigate();
-  const [page, setPage] = useState(1);
-  const [searchText, setSearchText] = useState("");
-  const [limit] = useState(10);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
+export default function ProductsTable({
+  data,
+  loading,
+  pagination,
+  onEdit,
+  onDelete,
+  onAdjustStock,
+  onViewHistory,
+}: ProductsTableProps) {
   const queryClient = useQueryClient();
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["products", page, searchText, limit],
-    queryFn: () => productsApi.getProducts({ page, limit, search: searchText }),
-  });
-  console.log(data, "data");
+  const navigate = useNavigate();
   const toggleStatusMutation = useMutation({
     mutationFn: (id: string) => productsApi.toggleProductStatus(id),
     onSuccess: () => {
@@ -57,26 +58,6 @@ export default function ProductsPage() {
       message.error("Cập nhật trạng thái thất bại");
     },
   });
-
-  const handleSearch = (value: string) => {
-    setSearchText(value);
-    setPage(1);
-  };
-
-  const handleAddProduct = () => {
-    setSelectedProduct(null);
-    setIsDialogOpen(true);
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDialogOpen(true);
-  };
-
-  const handleDeleteProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setIsDeleteDialogOpen(true);
-  };
 
   const handleToggleStatus = (product: Product) => {
     toggleStatusMutation.mutate(product.id);
@@ -97,9 +78,8 @@ export default function ProductsPage() {
       title: "Sản phẩm",
       dataIndex: "name",
       key: "name",
-      width: 350, // Nên set width cố định để cột không bị co giãn quá mức
+      width: 350,
       render: (_: any, record: Product) => {
-        // Ưu tiên shortDesc, nếu không có thì lấy description
         const content = record.shortDesc || record.description;
 
         return (
@@ -113,7 +93,6 @@ export default function ProductsPage() {
 
             <div className="font-medium text-base">{record.name}</div>
 
-            {/* Gọi Component xử lý đóng mở tại đây */}
             <ExpandableDescription content={content} />
           </div>
         );
@@ -176,8 +155,40 @@ export default function ProductsPage() {
       title: "Tồn kho",
       dataIndex: "stock",
       key: "stock",
-      width: 100,
-      align: "right",
+      width: 150,
+      align: "center",
+      render: (_: any, record: Product) => {
+        const stock = record.stock || 0;
+        const lowStock = record.lowStock || 10;
+        const isOutOfStock = stock === 0;
+        const isLowStock = stock > 0 && stock <= lowStock;
+
+        return (
+          <div className="flex flex-col items-center gap-1">
+            <span
+              className={`font-semibold text-lg ${
+                isOutOfStock
+                  ? "text-red-600"
+                  : isLowStock
+                    ? "text-orange-600"
+                    : "text-gray-900"
+              }`}
+            >
+              {stock}
+            </span>
+            {isOutOfStock && (
+              <Tag color="red" className="text-xs">
+                Hết hàng
+              </Tag>
+            )}
+            {isLowStock && (
+              <Tag color="orange" className="text-xs">
+                Sắp hết
+              </Tag>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Biến thể",
@@ -208,7 +219,8 @@ export default function ProductsPage() {
       title: "Thao tác",
       key: "action",
       align: "center",
-      width: 140,
+      width: 180,
+      fixed: "right",
       render: (_: any, record: Product) => (
         <Space size="small" onClick={(e) => e.stopPropagation()}>
           <Tooltip title="Chỉnh sửa">
@@ -217,11 +229,31 @@ export default function ProductsPage() {
               icon={<EditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                handleEditProduct(record);
+                onEdit(record);
               }}
               className="text-blue-600 hover:text-blue-700!"
             />
           </Tooltip>
+          {onAdjustStock && (
+            <Tooltip title="Điều chỉnh tồn kho">
+              <Button
+                type="text"
+                icon={<ToolOutlined />}
+                onClick={() => onAdjustStock(record)}
+                className="text-green-600 hover:text-green-700!"
+              />
+            </Tooltip>
+          )}
+          {onViewHistory && (
+            <Tooltip title="Lịch sử tồn kho">
+              <Button
+                type="text"
+                icon={<HistoryOutlined />}
+                onClick={() => onViewHistory(record)}
+                className="text-purple-600 hover:text-purple-700!"
+              />
+            </Tooltip>
+          )}
           <Tooltip title="Xóa">
             <Button
               type="text"
@@ -229,14 +261,15 @@ export default function ProductsPage() {
               icon={<DeleteOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                handleDeleteProduct(record);
+                onDelete(record);
               }}
             />
           </Tooltip>
           <Tooltip title="Kích hoạt">
             <Switch
               checked={!!record.isActive}
-              onChange={() => toggleStatusMutation.mutate(record.id)}
+              onChange={() => handleToggleStatus(record)}
+              size="small"
             />
           </Tooltip>
         </Space>
@@ -244,78 +277,26 @@ export default function ProductsPage() {
     },
   ];
 
-  if (isError) {
-    return (
-      <Alert
-        message="Lỗi"
-        description="Không thể tải danh sách products. Vui lòng thử lại sau."
-        type="error"
-        showIcon
-      />
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <Card className="shadow-sm">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <Title level={3} className="mb-0!">
-            Quản lý Products
-          </Title>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleAddProduct}
-            size="large"
-          >
-            Thêm Product
-          </Button>
-        </div>
-
-        <div className="mb-4">
-          <Search
-            placeholder="Tìm kiếm theo tên hoặc SKU..."
-            allowClear
-            enterButton={<SearchOutlined />}
-            size="large"
-            onSearch={handleSearch}
-            className="max-w-md"
-          />
-        </div>
-
-        <Table
-          columns={columns}
-          dataSource={data?.data || []}
-          rowKey="id"
-          loading={isLoading}
-          onRow={(record) => ({
-            onClick: () => navigate(`/products/${record.id}`),
-            className: "cursor-pointer hover:bg-gray-50",
-          })}
-          pagination={{
-            current: page,
-            pageSize: limit,
-            total: data?.pagination?.total || 0,
-            onChange: (newPage) => setPage(newPage),
-            showSizeChanger: false,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} của ${total} products`,
-          }}
-          className="overflow-x-auto"
-        />
-      </Card>
-
-      <ProductDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        product={selectedProduct}
-      />
-
-      <DeleteProductDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        product={selectedProduct}
-      />
-    </div>
+    <Table
+      columns={columns}
+      dataSource={data}
+      rowKey="id"
+      loading={loading}
+      onRow={(record) => ({
+        onClick: () => navigate(`products/${record.id}`),
+        className: "cursor-pointer hover:bg-gray-50",
+      })}
+      pagination={{
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+        total: pagination.total,
+        onChange: pagination.onChange,
+        showSizeChanger: false,
+        showTotal: (total, range) =>
+          `${range[0]}-${range[1]} của ${total} sản phẩm`,
+      }}
+      className="overflow-x-auto"
+    />
   );
 }

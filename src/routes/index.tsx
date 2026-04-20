@@ -9,8 +9,12 @@ import { useAuthStore } from "@/modules/auth/store";
 import React from "react";
 
 import UsersPage from "@/modules/users/pages/UsersPage";
-import ProductsPage from "@/modules/products/pages/ProductsPage";
-import ProductDetailPage from "@/modules/products/pages/ProductDetailPage";
+import { CategoriesProductsPage } from "@/modules/catalog";
+import ProductDetailPage from "@/modules/catalog/pages/products/pages/ProductDetailPage";
+import OrdersPage from "@/modules/orders/pages/OrdersPage";
+import OrderDetailPage from "@/modules/orders/pages/OrderDetailPage";
+import CustomersPage from "@/modules/customers/pages/CustomersPage";
+import DiscountsPage from "@/modules/discounts/pages/DiscountsPage";
 
 const Dashboard = () => (
   <div>
@@ -32,15 +36,6 @@ const Dashboard = () => (
         <h3 className="text-gray-500 text-sm font-medium">Products</h3>
         <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
       </div>
-    </div>
-  </div>
-);
-
-const ModulePlaceholder = ({ title }: { title: string }) => (
-  <div>
-    <h1 className="text-2xl font-bold mb-6">{title}</h1>
-    <div className="bg-white p-12 rounded-lg shadow-sm border border-gray-200 text-center">
-      <p className="text-gray-500">This module is under development.</p>
     </div>
   </div>
 );
@@ -67,24 +62,42 @@ const router = createBrowserRouter([
       { index: true, element: <Dashboard /> },
       { path: "users", element: <UsersPage /> },
       {
-        path: "products",
-        element: <ProductsPage />,
-      },
-      {
-        path: "products/:id",
-        element: <ProductDetailPage />,
-      },
-      {
-        path: "categories",
-        element: <ModulePlaceholder title="Categories Management" />,
+        path: "products-and-categories",
+        children: [
+          {
+            index: true,
+            element: <CategoriesProductsPage />,
+          },
+          {
+            path: "products/:id",
+            element: <ProductDetailPage />,
+          },
+        ],
       },
       {
         path: "orders",
-        element: <ModulePlaceholder title="Orders Management" />,
+        children: [
+          {
+            index: true,
+            element: <OrdersPage />,
+          },
+          {
+            path: ":id",
+            element: <OrderDetailPage />,
+          },
+        ],
+      },
+      {
+        path: "orders/:id",
+        element: <OrderDetailPage />,
+      },
+      {
+        path: "customers",
+        element: <CustomersPage />,
       },
       {
         path: "discounts",
-        element: <ModulePlaceholder title="Discounts Management" />,
+        element: <DiscountsPage />,
       },
     ],
   },

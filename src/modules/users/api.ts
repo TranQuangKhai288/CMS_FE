@@ -54,7 +54,7 @@ export const usersApi = {
   // Toggle trạng thái active
   toggleUserStatus: async (id: string) => {
     const response = await api.patch<UserResponse>(
-      `/admin/users/${id}/toggle-status`
+      `/admin/users/${id}/toggle-status`,
     );
     return response.data;
   },

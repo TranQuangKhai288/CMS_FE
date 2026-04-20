@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Layout, Menu, Avatar, Dropdown, Typography, theme } from "antd";
 import {
@@ -23,6 +23,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [optimisticKey, setOptimisticKey] = useState<string | null>(null); // ⚡ Optimistic UI
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -32,74 +33,132 @@ export default function DashboardLayout() {
     navigate("/login");
   };
 
-  const menuItems: MenuProps["items"] = [
-    {
-      key: "/",
-      icon: <HomeOutlined />,
-      label: "Dashboard",
-      onClick: () => navigate("/"),
-    },
-    {
-      key: "/users",
-      icon: <UserOutlined />,
-      label: "Users",
-      onClick: () => navigate("/users"),
-    },
-    {
-      key: "/products",
-      icon: <ShoppingOutlined />,
-      label: "Products",
-      onClick: () => navigate("/products"),
-    },
-    {
-      key: "/categories",
-      icon: <AppstoreOutlined />,
-      label: "Categories",
-      onClick: () => navigate("/categories"),
-    },
-    {
-      key: "/orders",
-      icon: <ShoppingCartOutlined />,
-      label: "Orders",
-      onClick: () => navigate("/orders"),
-    },
-    {
-      key: "/discounts",
-      icon: <TagOutlined />,
-      label: "Discounts",
-      onClick: () => navigate("/discounts"),
-    },
-  ];
+  const menuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "/",
+        icon: <HomeOutlined />,
+        label: "Dashboard",
+        onClick: () => {
+          setOptimisticKey("/");
+          navigate("/");
+        },
+      },
+      {
+        key: "/users",
+        icon: <UserOutlined />,
+        label: "Users",
+        onClick: () => {
+          setOptimisticKey("/users");
+          navigate("/users");
+        },
+      },
+      {
+        key: "/products-and-categories",
+        icon: <ShoppingOutlined />,
+        label: "Products & Categories",
+        onClick: () => {
+          setOptimisticKey("/products-and-categories");
+          navigate("/products-and-categories");
+        },
+      },
+      {
+        key: "/orders",
+        icon: <ShoppingCartOutlined />,
+        label: "Orders",
+        onClick: () => {
+          setOptimisticKey("/orders");
+          navigate("/orders");
+        },
+      },
+      {
+        key: "/customers",
+        icon: <UserOutlined />,
+        label: "Customers",
+        onClick: () => {
+          setOptimisticKey("/customers");
+          navigate("/customers");
+        },
+      },
+      {
+        key: "/discounts",
+        icon: <TagOutlined />,
+        label: "Discounts",
+        onClick: () => {
+          setOptimisticKey("/discounts");
+          navigate("/discounts");
+        },
+      },
+    ],
+    [navigate],
+  );
 
-  const userMenuItems: MenuProps["items"] = [
-    {
-      key: "profile",
-      icon: <UserOutlined />,
-      label: "Thông tin cá nhân",
-    },
-    {
-      type: "divider",
-    },
-    {
-      key: "logout",
-      icon: <LogoutOutlined />,
-      label: "Đăng xuất",
-      danger: true,
-      onClick: handleLogout,
-    },
-  ];
+  const userMenuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "profile",
+        icon: <UserOutlined />,
+        label: "Thông tin cá nhân",
+      },
+      {
+        type: "divider",
+      },
+      {
+        key: "logout",
+        icon: <LogoutOutlined />,
+        label: "Đăng xuất",
+        danger: true,
+        onClick: handleLogout,
+      },
+    ],
+    [handleLogout],
+  );
 
-  const getSelectedKey = () => {
+  // ⚡ OPTIMIZED: Memoize selectedKey với optimistic fallback
+  const selectedKey = useMemo(() => {
+    if (optimisticKey) return optimisticKey;
+
     const path = location.pathname;
     if (path === "/") return "/";
-    const item = menuItems.find(
-      (item) => item?.key !== "/" && path.startsWith(item?.key as string)
-    );
-    return (item?.key as string) || "/";
-  };
+    return path.startsWith("/users")
+      ? "/users"
+      : path.startsWith("/products-and-categories")
+        ? "/products-and-categories"
+        : path.startsWith("/orders")
+          ? "/orders"
+          : path.startsWith("/customers")
+            ? "/customers"
+            : path.startsWith("/discounts")
+              ? "/discounts"
+              : "/";
+  }, [location.pathname, optimisticKey]);
+
+  useEffect(() => {
+    if (optimisticKey) {
+      const path = location.pathname;
+      const actualKey =
+        path === "/"
+          ? "/"
+          : path.startsWith("/users")
+            ? "/users"
+            : path.startsWith("/products-and-categories")
+              ? "/products-and-categories"
+              : path.startsWith("/orders")
+                ? "/orders"
+                : path.startsWith("/customers")
+                  ? "/customers"
+                  : path.startsWith("/discounts")
+                    ? "/discounts"
+                    : "/";
+
+      if (actualKey === optimisticKey) {
+        setOptimisticKey(null);
+      }
+    }
+  }, [location.pathname, optimisticKey]);
 
   return (
-    <Layout className="h-screen">
+    <Layout className="min-h-screen">
       <Sider
         trigger={null}
         collapsible
@@ -113,28 +172,35 @@ export default function DashboardLayout() {
           left: 0,
           top: 0,
           bottom: 0,
-          zIndex: 50, // Đảm bảo nằm trên các phần tử khác nếu cần
+          zIndex: 50,
         }}
       >
-        {/* Phần Logo này sẽ luôn cố định ở góc trái trên cùng vì Sider đã fixed */}
         <div className="h-16 flex items-center justify-center border-b border-gray-200 sticky top-0 bg-white z-10">
           <h1
-            className={`font-bold text-indigo-600 transition-all ${collapsed ? "text-lg" : "text-xl"
-              }`}
+            className={`font-bold text-indigo-600 transition-all ${
+              collapsed ? "text-lg" : "text-xl"
+            }`}
           >
-            {collapsed ? "CSM" : "CSM Admin"}
+            {collapsed ? "cms" : "cms Admin"}
           </h1>
         </div>
 
         <Menu
           mode="inline"
-          selectedKeys={[getSelectedKey()]}
+          selectedKeys={[selectedKey]}
           items={menuItems}
           className="border-r-0"
+          motion={{}}
+          inlineCollapsed={collapsed}
         />
       </Sider>
 
-      <Layout className="flex flex-col">
+      <Layout
+        style={{
+          marginLeft: collapsed ? 80 : 240,
+          transition: "margin-left 0.2s",
+        }}
+      >
         <Header
           style={{ background: colorBgContainer }}
           className="px-6! flex items-center justify-between shadow-sm shrink-0"
@@ -167,8 +233,11 @@ export default function DashboardLayout() {
         </Header>
 
         <Content
-          className="m-6 p-6 bg-gray-50 flex-1 overflow-auto"
-          style={{ borderRadius: borderRadiusLG }}
+          className="m-6 p-6 bg-gray-50"
+          style={{
+            borderRadius: borderRadiusLG,
+            minHeight: "calc(100vh - 112px)",
+          }}
         >
           <Outlet />
         </Content>

@@ -32,6 +32,11 @@ export interface Product {
   description?: string;
   shortDesc?: string;
   categoryId?: string;
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
   attributes?: any; // jsonb
   basePrice?: number;
   salePrice?: number;
@@ -56,16 +61,17 @@ export interface CreateProductDto {
   slug?: string;
   sku?: string;
   description?: string;
-  shortDesc?: string;
+  shortDescription?: string;
   categoryId?: string;
   attributes?: any;
   basePrice?: number;
   salePrice?: number;
   costPrice?: number;
-  stock?: number;
-  lowStock?: number;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
   isActive?: boolean;
   isFeatured?: boolean;
+  images?: Array<{ url: string; isPrimary?: boolean; alt?: string }>;
 }
 
 export interface UpdateProductDto {
@@ -73,16 +79,17 @@ export interface UpdateProductDto {
   slug?: string;
   sku?: string;
   description?: string;
-  shortDesc?: string;
+  shortDescription?: string;
   categoryId?: string;
   attributes?: any;
   basePrice?: number;
   salePrice?: number;
   costPrice?: number;
-  stock?: number;
-  lowStock?: number;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
   isActive?: boolean;
   isFeatured?: boolean;
+  images?: Array<{ url: string; isPrimary?: boolean; alt?: string }>;
 }
 
 export type ProductListResponse = ApiResponse<Product[]>;

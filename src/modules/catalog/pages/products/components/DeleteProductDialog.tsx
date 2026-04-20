@@ -1,7 +1,7 @@
 import { Modal, Typography, message } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { productsApi } from "../api";
+import { productsApi } from "@/apis/products";
 import type { Product } from "../types";
 
 const { Text } = Typography;

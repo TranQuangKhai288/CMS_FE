@@ -1,7 +1,7 @@
 import { Form, Input, Button, Card, Typography, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
-import { authApi } from "../api";
+import { authApi } from "../../../apis/auth";
 import { useAuthStore } from "../store";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +28,7 @@ export default function LoginPage() {
       console.error("Login failed", error);
       message.error(
         error.response?.data?.message ||
-          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
       );
     },
   });

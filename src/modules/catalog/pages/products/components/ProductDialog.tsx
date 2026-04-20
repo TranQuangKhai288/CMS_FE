@@ -1,22 +1,10 @@
 import { useEffect } from "react";
-import {
-  Modal,
-  Form,
-  Input,
-  Select,
-  message,
-  Switch,
-  InputNumber,
-  Button,
-  Space,
-  Card,
-  Row,
-  Col,
-  Divider,
-} from "antd";
+import { Modal, Form, message, Button, Card, Row, Col, Divider } from "antd";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import { productsApi, categoriesApi } from "../api"; // Đảm bảo import đúng đường dẫn
+import { productsApi } from "@/apis/products";
+import { categoriesApi } from "@/apis/categories";
+import ImageUpload from "@/components/core/ImageUpload";
 import type { Product } from "../types";
 import {
   CoreInput,
@@ -37,7 +25,7 @@ interface ProductFormData {
   name: string;
   slug?: string;
   sku?: string;
-  shortDesc?: string;
+  shortDescription?: string;
   description?: string;
   categoryId?: string;
   // Attributes đổi thành mảng object để dễ thao tác trên UI
@@ -45,9 +33,12 @@ interface ProductFormData {
   basePrice?: number;
   salePrice?: number;
   costPrice?: number;
-  stock?: number;
+  stockQuantity?: number;
+  lowStockThreshold?: number;
   status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" | "OUT_OF_STOCK";
   isActive?: boolean;
+  // Images
+  images?: Array<{ url: string; isPrimary?: boolean; alt?: string }>;
 }
 
 export default function ProductDialog({
@@ -90,20 +81,30 @@ export default function ProductDialog({
         parsedAttributes = [];
       }
 
+      // Parse images
+      const productImages =
+        product.images?.map((img) => ({
+          url: img.url,
+          isPrimary: img.isPrimary,
+          alt: img.alt || product.name,
+        })) || [];
+
       form.setFieldsValue({
         name: product.name,
         slug: product.slug || "",
         sku: product.sku || "",
-        shortDesc: product.shortDesc || "",
+        shortDescription: product.shortDesc || "",
         description: product.description || "",
         categoryId: product.categoryId || undefined,
         attributes: parsedAttributes, // Set mảng object vào form
         basePrice: product.basePrice ?? 0,
         salePrice: product.salePrice ?? 0,
         costPrice: product.costPrice ?? 0,
-        stock: product.stock ?? 0,
+        stockQuantity: product.stock ?? 0,
+        lowStockThreshold: product.lowStock ?? 10,
         status: product.status || "DRAFT",
         isActive: product.isActive ?? true,
+        images: productImages,
       });
     } else if (isOpen) {
       form.resetFields();
@@ -178,6 +179,13 @@ export default function ProductDialog({
         <Row gutter={24}>
           {/* CỘT TRÁI */}
           <Col span={14}>
+            {/* CARD IMAGES - Di chuyển lên đầu */}
+            <Card title="Hình ảnh sản phẩm" size="small" className="mb-4">
+              <Form.Item name="images" label="">
+                <ImageUpload maxCount={10} folder="products" />
+              </Form.Item>
+            </Card>
+
             <Card title="Thông tin chung" size="small" className="mb-4">
               <CoreInput
                 label="Tên sản phẩm"
@@ -209,7 +217,7 @@ export default function ProductDialog({
 
               <CoreTextArea
                 label="Mô tả ngắn"
-                name="shortDesc"
+                name="shortDescription"
                 rows={2}
                 maxLength={255}
                 showCount
@@ -252,7 +260,13 @@ export default function ProductDialog({
                   />
                 </Col>
                 <Col span={12}>
-                  <CoreInputCurrency label="Tồn kho" name="stock" />
+                  <CoreInputCurrency label="Tồn kho" name="stockQuantity" />
+                </Col>
+                <Col span={12}>
+                  <CoreInputCurrency
+                    label="Ngưỡng cảnh báo"
+                    name="lowStockThreshold"
+                  />
                 </Col>
               </Row>
 

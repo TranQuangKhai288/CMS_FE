@@ -8,6 +8,9 @@ export const api = axios.create({
   },
 });
 
+// Store for managing request cancellation
+const pendingRequests = new Map<string, AbortController>();
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string) => void;
@@ -25,23 +28,73 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Helper function to generate request key for deduplication
+const generateRequestKey = (config: any): string => {
+  return `${config.method}-${config.url}-${JSON.stringify(config.params || {})}`;
+};
+
+// Helper function to cancel pending request
+export const cancelPendingRequest = (config: any) => {
+  const key = generateRequestKey(config);
+  const controller = pendingRequests.get(key);
+  if (controller) {
+    controller.abort();
+    pendingRequests.delete(key);
+  }
+};
+
+// Helper function to cancel all pending requests
+export const cancelAllPendingRequests = () => {
+  pendingRequests.forEach((controller) => {
+    controller.abort();
+  });
+  pendingRequests.clear();
+};
+
 // Request interceptor - thêm token vào mọi request
 api.interceptors.request.use(
   (config) => {
+    // Tạo AbortController cho request này
+    const controller = new AbortController();
+    const key = generateRequestKey(config);
+
+    // Hủy request cũ cùng key nếu có (prevent duplicate requests)
+    cancelPendingRequest(config);
+
+    // Lưu controller để có thể hủy sau
+    pendingRequests.set(key, controller);
+    config.signal = controller.signal;
+
     const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor - tự động refresh token khi hết hạn
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Xóa request khỏi pending list khi thành công
+    const key = generateRequestKey(response.config);
+    pendingRequests.delete(key);
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
+
+    // Xóa request khỏi pending list nếu bị hủy
+    if (originalRequest) {
+      const key = generateRequestKey(originalRequest);
+      pendingRequests.delete(key);
+    }
+
+    // Nếu lỗi là do abort (hủy request), không retry
+    if (error.name === "AbortError" || error.code === "ECONNABORTED") {
+      return Promise.reject(error);
+    }
 
     // Nếu lỗi 401 và chưa retry
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -74,7 +127,7 @@ api.interceptors.response.use(
         // Gọi API refresh token
         const response = await axios.post<ApiResponse<AuthResponse>>(
           `${api.defaults.baseURL}/auth/refresh`,
-          { refreshToken }
+          { refreshToken },
         );
 
         const { accessToken, refreshToken: newRefreshToken } =
@@ -109,5 +162,5 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );

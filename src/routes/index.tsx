@@ -88,6 +88,10 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: "orders/:id",
+        element: <OrderDetailPage />,
+      },
+      {
         path: "customers",
         element: <CustomersPage />,
       },

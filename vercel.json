@@ -43,7 +43,7 @@
     }
   ],
   "env": {
-    "VITE_APP_NAME": "CSM Admin",
+    "VITE_APP_NAME": "cms Admin",
     "VITE_APP_VERSION": "1.0.0"
   }
 }

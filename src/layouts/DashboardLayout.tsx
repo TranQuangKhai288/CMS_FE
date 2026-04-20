@@ -181,7 +181,7 @@ export default function DashboardLayout() {
               collapsed ? "text-lg" : "text-xl"
             }`}
           >
-            {collapsed ? "CSM" : "CSM Admin"}
+            {collapsed ? "cms" : "cms Admin"}
           </h1>
         </div>
 

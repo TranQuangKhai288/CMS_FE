@@ -8,6 +8,9 @@ import {
   AppstoreOutlined,
   ShoppingCartOutlined,
   TagOutlined,
+  InboxOutlined,
+  SafetyCertificateOutlined,
+  FileImageOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -89,6 +92,33 @@ export default function DashboardLayout() {
           navigate("/discounts");
         },
       },
+      {
+        key: "/inventory",
+        icon: <InboxOutlined />,
+        label: "Inventory",
+        onClick: () => {
+          setOptimisticKey("/inventory");
+          navigate("/inventory");
+        },
+      },
+      {
+        key: "/roles",
+        icon: <SafetyCertificateOutlined />,
+        label: "Roles & Permissions",
+        onClick: () => {
+          setOptimisticKey("/roles");
+          navigate("/roles");
+        },
+      },
+      {
+        key: "/media",
+        icon: <FileImageOutlined />,
+        label: "Media Library",
+        onClick: () => {
+          setOptimisticKey("/media");
+          navigate("/media");
+        },
+      },
     ],
     [navigate],
   );
@@ -130,7 +160,13 @@ export default function DashboardLayout() {
             ? "/customers"
             : path.startsWith("/discounts")
               ? "/discounts"
-              : "/";
+              : path.startsWith("/inventory")
+                ? "/inventory"
+                : path.startsWith("/roles")
+                ? "/roles"
+                : path.startsWith("/media")
+                  ? "/media"
+                  : "/";
   }, [location.pathname, optimisticKey]);
 
   useEffect(() => {
@@ -149,7 +185,13 @@ export default function DashboardLayout() {
                   ? "/customers"
                   : path.startsWith("/discounts")
                     ? "/discounts"
-                    : "/";
+                    : path.startsWith("/inventory")
+                      ? "/inventory"
+                      : path.startsWith("/roles")
+                        ? "/roles"
+                        : path.startsWith("/media")
+                          ? "/media"
+                          : "/";
 
       if (actualKey === optimisticKey) {
         setOptimisticKey(null);
@@ -181,7 +223,7 @@ export default function DashboardLayout() {
               collapsed ? "text-lg" : "text-xl"
             }`}
           >
-            {collapsed ? "cms" : "cms Admin"}
+            {collapsed ? "AG" : "Antigravity CMS"}
           </h1>
         </div>
 

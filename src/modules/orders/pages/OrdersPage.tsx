@@ -5,7 +5,7 @@ import { ordersApi } from "@/apis/orders";
 import { useOrdersManagement } from "../hooks/useOrdersManagement";
 import OrdersTable from "../components/OrdersTable";
 import type { OrderStatus, PaymentStatus } from "../types";
-import { useEffect, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 
 // ⚡ LAZY LOAD dialogs - Chỉ load khi cần
 const OrderDetailDialog = lazy(() => import("../components/OrderDetailDialog"));
@@ -36,18 +36,6 @@ const paymentStatusOptions = [
 ];
 
 export default function OrdersPage() {
-    console.log('🔵 OrdersPage component START');
-    const startTime = performance.now();
-
-    useEffect(() => {
-        const mountTime = performance.now() - startTime;
-        console.log(`🟢 OrdersPage MOUNTED in ${mountTime.toFixed(2)}ms`);
-
-        return () => {
-            console.log('🔴 OrdersPage UNMOUNTED');
-        };
-    }, []);
-
     const {
         page,
         searchText,
@@ -71,9 +59,6 @@ export default function OrdersPage() {
 
     const limit = 10;
 
-    console.log('🔵 Starting useQuery...');
-    const queryStartTime = performance.now();
-
     const {
         data,
         isLoading,
@@ -82,8 +67,6 @@ export default function OrdersPage() {
     } = useQuery({
         queryKey: ["orders", page, searchText, statusFilter, paymentStatusFilter, limit],
         queryFn: async () => {
-            console.log('🟡 Query function EXECUTING...');
-            const queryFnStart = performance.now();
             const result = await ordersApi.getOrders({
                 page,
                 pageSize: limit,
@@ -91,20 +74,12 @@ export default function OrdersPage() {
                 status: statusFilter || undefined,
                 paymentStatus: paymentStatusFilter || undefined,
             });
-            const queryFnTime = performance.now() - queryFnStart;
-            console.log(`🟢 Query function COMPLETED in ${queryFnTime.toFixed(2)}ms`);
             return result;
         },
         // ❌ REMOVED: refetchInterval causing 150ms unmount delay
         // refetchInterval: 30 * 1000,
         placeholderData: (previousData) => previousData,
     });
-
-    const queryTime = performance.now() - queryStartTime;
-    console.log(`🟢 useQuery hook completed in ${queryTime.toFixed(2)}ms, isLoading: ${isLoading}`);
-
-    console.log('🔵 Rendering OrdersPage JSX...');
-    const renderStartTime = performance.now();
 
     return (
         <div className="space-y-6">

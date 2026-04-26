@@ -8,6 +8,7 @@ import LoginPage from "@/modules/auth/pages/LoginPage";
 import { useAuthStore } from "@/modules/auth/store";
 import React from "react";
 
+import DashboardPage from "@/modules/dashboard/DashboardPage";
 import UsersPage from "@/modules/users/pages/UsersPage";
 import { CategoriesProductsPage } from "@/modules/catalog";
 import ProductDetailPage from "@/modules/catalog/pages/products/pages/ProductDetailPage";
@@ -15,30 +16,9 @@ import OrdersPage from "@/modules/orders/pages/OrdersPage";
 import OrderDetailPage from "@/modules/orders/pages/OrderDetailPage";
 import CustomersPage from "@/modules/customers/pages/CustomersPage";
 import DiscountsPage from "@/modules/discounts/pages/DiscountsPage";
-
-const Dashboard = () => (
-  <div>
-    <h1 className="text-2xl font-bold mb-4">Dashboard Overview</h1>
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <h3 className="text-gray-500 text-sm font-medium">Total Users</h3>
-        <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
-      </div>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <h3 className="text-gray-500 text-sm font-medium">Total Orders</h3>
-        <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
-      </div>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <h3 className="text-gray-500 text-sm font-medium">Revenue</h3>
-        <p className="text-3xl font-bold text-gray-900 mt-2">$0.00</p>
-      </div>
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <h3 className="text-gray-500 text-sm font-medium">Products</h3>
-        <p className="text-3xl font-bold text-gray-900 mt-2">--</p>
-      </div>
-    </div>
-  </div>
-);
+import InventoryPage from "@/modules/inventory/pages/InventoryPage";
+import RolesPage from "@/modules/roles/pages/RolesPage";
+import MediaPage from "@/modules/media/pages/MediaPage";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -59,7 +39,7 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <Dashboard /> },
+      { index: true, element: <DashboardPage /> },
       { path: "users", element: <UsersPage /> },
       {
         path: "products-and-categories",
@@ -88,16 +68,24 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "orders/:id",
-        element: <OrderDetailPage />,
-      },
-      {
         path: "customers",
         element: <CustomersPage />,
       },
       {
         path: "discounts",
         element: <DiscountsPage />,
+      },
+      {
+        path: "inventory",
+        element: <InventoryPage />,
+      },
+      {
+        path: "roles",
+        element: <RolesPage />,
+      },
+      {
+        path: "media",
+        element: <MediaPage />,
       },
     ],
   },
